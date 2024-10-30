@@ -1,0 +1,27 @@
+.heading-input {
+    border: none;
+    outline: none;
+    font-size: 30px;
+  }
+
+.crossIcon{
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+.paragraph-input-half,
+.paragraph-input{
+    font-size: 14px;
+    height: 100px;
+    overflow: auto;
+    border: none;
+    outline: none;
+    overflow: hidden; 
+    overflow-y: hidden;   /* Hide vertical scrollbar only */
+  resize: none;         /* Optional: Disable resizing */
+  height: auto; 
+  /* resize: none; */
+}
+.paragraph-input-half{
+    width: 50%;
+}
