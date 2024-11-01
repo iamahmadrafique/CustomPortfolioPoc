@@ -21,6 +21,7 @@ export default function DropZone2({ accept, onDrop, children, style }) {
           flexWrap: 'wrap',
           gap: '8px',
         }}
+        className='backgroundImage'
       >
         {children}
       </div>

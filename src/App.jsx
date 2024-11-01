@@ -1,23 +1,3 @@
-// import './App.css'
-// import { DndProvider } from 'react-dnd'
-// import { HTML5Backend } from 'react-dnd-html5-backend'
-// import Sidebar from './components/Sidebar'
-// import DropArea from './components/DropArea'
-
-// function App() {
-
-//   return (
-//     <DndProvider backend={HTML5Backend}>
-//      <div style={{ display: 'flex' }}>
-//       <Sidebar />
-//        <DropArea />
-//     </div>
-//   </DndProvider>
-//   )
-// }
-
-// export default App
-
 
 import React, { useEffect, useState } from 'react';
 import { DndProvider } from 'react-dnd';
@@ -33,6 +13,8 @@ import Theme1 from './components2/Theme1';
 import Theme2 from './components2/Theme2';
 import FinalTheme1 from './components2/FinalTheme1';
 import axios from 'axios';
+import'./App.css';
+// import cssContent1 from '!!raw-loader!./components2/DataSec.css';
 // import DragableItem2 from './components2/DraggableItem2';
 
 const ItemTypes = {
@@ -49,6 +31,12 @@ export default function App() {
   const [activeTheme, setActiveTheme] = useState(0);
   const [dataSaved, setDataSaved] = useState(false);
   window.Buffer = Buffer;
+
+  async function loadCSSFiles() {
+    const files = import.meta.glob('/src/**/*.css', { as: 'raw', eager: true });
+    return Object.values(files).join('\n');
+}
+
   async function deployToVercel(htmlContent) {
     setDeployLoader(true);
     const vercelToken = '21oEYD9Q7Werem5zqytaPMGz';
@@ -64,7 +52,8 @@ export default function App() {
           {
             file: "index.html",
             data: htmlContent,
-          }
+          },
+         
         ],
         "projectSettings": {
     "framework": null,
@@ -84,18 +73,132 @@ export default function App() {
     return result.url;
 }
 
-  const handleAutoDeploy = () => {
+
+
+async function deployProject() {
+  setDeployLoader(true);
+  const deploymentData = {
+      name: "resume-auto-dep",
+      gitSource: {
+          type: "github",
+          repoId: "880674205",
+          ref: "main"
+      },
+      "projectSettings": {
+        "installCommand": "npm install",
+        "buildCommand": "npm run build",
+        "devCommand": "vite --port $PORT",
+        "outputDirectory": "dist",
+        "framework": "vite"
+      }
+      // Additional configuration here if necessary
+  };
+
+  const response = await fetch("https://api.vercel.com/v13/deployments", {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer 21oEYD9Q7Werem5zqytaPMGz`, // Use your actual token here
+      },
+      body: JSON.stringify(deploymentData),
+  });
+
+  if (response.ok) {
+      console.log("Deployment successful!");
+      setDeployLoader(false);
+  } else {
+      console.log("Deployment failed:", await response.json());
+      setDeployLoader(false);
+  }
+}
+
+
+
+  const handleAutoDeploy = async () => {
     const htmlContent = ReactDOMServer.renderToString(<FinalTheme1 ItemTypes={ItemTypes} aboutItems={aboutItems} skillsItems={skillsItems}/>);
-    deployToVercel(htmlContent)
+    const cssContent = await loadCSSFiles();
+    const htmlContent2 = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Your Resume</title>
+
+        <!-- Bootstrap CSS 5.3.3 -->
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          crossorigin="anonymous"
+        />
+
+        <!-- Google Fonts for MUI -->
+        <link 
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" 
+          rel="stylesheet" 
+        />
+
+        
+
+        <!-- Tailwind CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+        <!-- Ant Design -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.17.3/antd.min.css" />
+
+        <style>${cssContent}</style>
+    </head>
+    <body>
+        <div id="resume">
+            ${ReactDOMServer.renderToString(<FinalTheme1 ItemTypes={ItemTypes} aboutItems={aboutItems} skillsItems={skillsItems}/>)}
+        </div>
+
+        <!-- Bootstrap JavaScript Bundle 5.3.3 -->
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          crossorigin="anonymous"
+        ></script>
+
+        <!-- React and ReactDOM -->
+        <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+
+        <!-- Material-UI JavaScript Bundle -->
+        <script 
+      src="https://cdnjs.cloudflare.com/ajax/libs/material-ui/5.0.0-beta.5/index.min.js"
+      crossorigin="anonymous"
+    ></script>
+
+        <!-- Ant Design -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/4.17.3/antd.min.js"></script>
+    </body>
+    </html>`;
+
+
+
+    deployToVercel(htmlContent2)
   }
 
   const goToResume = () => {
     window.open(deployedUrl, '_blank',);
   }
+
+  const handleDeploy = async () => {
+    setDeployLoader(true);
+    try {
+        const response = await fetch('http://localhost:5000/deploy', { method: 'POST' });
+        const result = await response.json();
+        setDeployedUrl(result.url);
+    } catch (error) {
+        console.error("Error during deployment:", error);
+    }
+    setDeployLoader(false);
+};
  
 
   return (
     <DndProvider backend={HTML5Backend}>
+      <h2 style={{marginLeft: '300px'}}>POC of Auto Deployment</h2>
       <div style={{ display: 'flex', gap: '20px',
        }}>
         {/* Sidebar with draggable items */}

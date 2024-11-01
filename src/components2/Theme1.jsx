@@ -119,12 +119,13 @@ export default function Theme1({ItemTypes, aboutItems, skillsItems, setAboutItem
   },[skillsItems])
     return(
       <>
-        <div style={{ flexGrow: 1, width: '500px', minHeight: '500px', backgroundColor: 'white', border: '1px solid black', padding: '10px'}}>
+        <div  style={{ flexGrow: 1, width: '500px', minHeight: '500px', backgroundColor: 'white', border: '1px solid black', padding: '10px'}}>
           <h2>About Section</h2>
           <DropZone2
             accept={[ItemTypes.PARAGRAPH, ItemTypes.IMAGE, ItemTypes.HEADING]}
             onDrop={(item) => handleDrop('about', item)}
             style={{ minHeight: '200px' }}
+            
           >
             {aboutItems?.map((item, index) => (
               <div key={index} style={{ width: item.type === ItemTypes.PARAGRAPH ? '50%' : item.type === ItemTypes.HEADING ? '100%' : '30%' }}>
